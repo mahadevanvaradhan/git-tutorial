@@ -12,3 +12,11 @@ git config --global user.name "username"
 
 git config --global user.email
 git config --global user.email "email.com"
+
+
+## Git First Commit
+
+git add .
+git commit -m "Forst Commit"
+
+use "git branch -M main" (to rename master branch to main)
