@@ -26,3 +26,7 @@ git status
 git remote
 git remote -v
 git restore
+
+git restore --stage "one.txt"
+
+git deff --staged
