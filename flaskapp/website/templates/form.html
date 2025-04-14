@@ -45,19 +45,30 @@
         .section {
             margin-bottom: 20px;
         }
+        .auth-section {
+            display: none;
+        }
         .back-link {
             display: block;
             text-align: center;
             margin-top: 20px;
         }
+        .error {
+            color: red;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
 <h1>{{ action }} API Configuration</h1>
+{% if error %}
+<div class="error">{{ error }}</div>
+{% endif %}
 <form method="post">
     <div class="section">
         <label for="method">HTTP Method</label>
-        <select name="method" id="method">
+        <select name="method" id="method" required>
+            <option value="" disabled {% if not config %}selected{% endif %}>Select Method</option>
             <option value="GET" {% if config and config.method == 'GET' %}selected{% endif %}>GET</option>
             <option value="POST" {% if config and config.method == 'POST' %}selected{% endif %}>POST</option>
             <option value="PUT" {% if config and config.method == 'PUT' %}selected{% endif %}>PUT</option>
@@ -67,7 +78,7 @@
 
     <div class="section">
         <label for="base_url">Base URL</label>
-        <input name="base_url" id="base_url" value="{{ config.base_url if config else '' }}">
+        <input name="base_url" id="base_url" value="{{ config.base_url if config else '' }}" required>
     </div>
 
     <div class="section">
@@ -105,8 +116,48 @@
         <input name="created_by" id="created_by" value="{{ config.created_by if config else '' }}">
     </div>
 
+    <div class="section">
+        <label for="auth_type">Authorization Type</label>
+        <select name="auth_type" id="auth_type" onchange="toggleAuthFields()">
+            <option value="none" {% if config and config.auth_type == 'none' %}selected{% endif %}>None</option>
+            <option value="basic" {% if config and config.auth_type == 'basic' %}selected{% endif %}>Basic Auth</option>
+            <option value="bearer" {% if config and config.auth_type == 'bearer' %}selected{% endif %}>Bearer Token</option>
+            <option value="api_key" {% if config and config.auth_type == 'api_key' %}selected{% endif %}>API Key</option>
+        </select>
+    </div>
+
+    <div id="basic-auth" class="section auth-section">
+        <label for="basic_username">Username</label>
+        <input name="basic_username" id="basic_username" value="{{ config.basic_username if config else '' }}">
+        <label for="basic_password">Password</label>
+        <input name="basic_password" id="basic_password" type="password" value="{{ config.basic_password if config else '' }}">
+    </div>
+
+    <div id="bearer-auth" class="section auth-section">
+        <label for="bearer_token">Bearer Token</label>
+        <input name="bearer_token" id="bearer_token" value="{{ config.bearer_token if config else '' }}">
+    </div>
+
+    <div id="api-key-auth" class="section auth-section">
+        <label for="api_key">API Key Header</label>
+        <input name="api_key" id="api_key" value="{{ config.api_key if config else '' }}">
+        <label for="api_key_value">API Key Value</label>
+        <input name="api_key_value" id="api_key_value" value="{{ config.api_key_value if config else '' }}">
+    </div>
+
     <button type="submit">{{ action }}</button>
 </form>
 <a href="{{ url_for('dashboard.dashboard') }}" class="back-link">Back to Dashboard</a>
+
+<script>
+    function toggleAuthFields() {
+        var authType = document.getElementById('auth_type').value;
+        document.getElementById('basic-auth').style.display = authType === 'basic' ? 'block' : 'none';
+        document.getElementById('bearer-auth').style.display = authType === 'bearer' ? 'block' : 'none';
+        document.getElementById('api-key-auth').style.display = authType === 'api_key' ? 'block' : 'none';
+    }
+    // Initialize on page load
+    toggleAuthFields();
+</script>
 </body>
-</html></div>
+</html>

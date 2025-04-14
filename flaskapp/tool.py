@@ -1,13 +1,12 @@
 import requests
 from typing import Any, Dict, List
-from mcp import tool
 
-@tool()
-def get_https:__newsapi.org_v2_top_headlines(country: str = "default", apiKey: str = "default") -> Any:
-    """
-    Auto-generated GET method for https://newsapi.org/v2/top-headlines
-    """
-    url = "https://newsapi.org/v2/top-headlines/https://newsapi.org/v2/top-headlines"
+def get_(country: str = "country", apiKey: str = "NEWS_API_KEY") -> Any:
+    """Auto-generated GET method for """
+    url = "https://newsapi.org/v2/top-headlines/"
+    headers = {
+    "Authorization": "Basic maha:password"
+}
     params = {
         "country": country,
         "apiKey": apiKey
@@ -15,7 +14,8 @@ def get_https:__newsapi.org_v2_top_headlines(country: str = "default", apiKey: s
     try:
         response = requests.get(
             url,
-            params=params
+            headers=headers,
+            params=params,
         )
         response.raise_for_status()
         return response.json()
