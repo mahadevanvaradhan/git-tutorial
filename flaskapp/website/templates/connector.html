@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block title %}HTTP Connectors{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>HTTP Connectors</h1>
+    <div id="flash-messages"></div>
+
+    <!-- Form for Adding/Editing Connector -->
+    <div class="form-container">
+        <h2 id="form-title">Add Connector</h2>
+        <form id="connector-form">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label for="category">Category</label>
+                <input type="text" id="category" name="category" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label for="base_url">Base URL</label>
+                <input type="url" id="base_url" name="base_url" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label for="auth_type">Authorization Type</label>
+                <select id="auth_type" name="auth_type" class="form-control" required>
+                    <option value="none">None</option>
+                    <option value="basic">Basic Auth</option>
+                    <option value="bearer">Bearer Token</option>
+                    <option value="api_key">API Key</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="auth_config">Auth Config (JSON)</label>
+                <textarea id="auth_config" name="auth_config" class="form-control" rows="4" placeholder='e.g., {"username": "user", "password": "pass"} for Basic Auth'></textarea>
+            </div>
+
+            <input type="hidden" id="connector_id" name="connector_id">
+            <input type="hidden" id="created_by" name="created_by">
+            <button type="submit" class="btn btn-success">Save Connector</button>
+        </form>
+    </div>
+
+    <!-- Connectors Table -->
+    <table class="table table-bordered" id="connectors-table">
+        <thead class="thead-dark">
+            <tr>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Base URL</th>
+                <th>Auth Type</th>
+                <th>Created By</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="connectors-body"></tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block javascript %}
+{{ super() }}
+<script type="text/javascript">
+    // Load connectors on page load
+    document.addEventListener('DOMContentLoaded', loadConnectors);
+
+    // Form submission
+    document.getElementById('connector-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const connectorId = form.connector_id.value;
+        let authConfig;
+        try {
+            const authConfigValue = form.auth_config.value.trim();
+            authConfig = authConfigValue ? JSON.parse(authConfigValue) : null;
+        } catch (err) {
+            showFlashMessage('Invalid JSON in auth_config: ' + err.message, 'error');
+            return;
+        }
+
+        // Validate required fields
+        const data = {
+            name: form.name.value.trim(),
+            category: form.category.value.trim(),
+            base_url: form.base_url.value.trim(),
+            auth_type: form.auth_type.value,
+            auth_config: authConfig,
+            created_by: form.created_by.value || '{{ current_user.email if current_user.is_authenticated else "" }}'
+        };
+        if (!data.name || !data.category || !data.base_url) {
+            showFlashMessage('Missing required fields: name, category, or base_url', 'error');
+            return;
+        }
+
+        try {
+            let response;
+            if (connectorId) {
+                response = await fetch(`/connectors/${connectorId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+            } else {
+                response = await fetch('/connectors', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+            }
+
+            const result = await response.json();
+            if (!response.ok) {
+                showFlashMessage(result.error || 'Operation failed: ' + response.statusText, 'error');
+                return;
+            }
+
+            showFlashMessage(connectorId ? 'Connector updated successfully' : 'Connector created successfully', 'success');
+            resetForm();
+            loadConnectors();
+        } catch (err) {
+            showFlashMessage('Failed to fetch: ' + err.message, 'error');
+        }
+    });
+
+    // Load connectors
+    async function loadConnectors() {
+        try {
+            const response = await fetch('/connectors');
+            if (!response.ok) throw new Error('Failed to fetch connectors: ' + response.statusText);
+            const connectors = await response.json();
+            const tbody = document.getElementById('connectors-body');
+            tbody.innerHTML = '';
+            connectors.forEach(connector => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${connector.name || ''}</td>
+                    <td>${connector.category || ''}</td>
+                    <td>${connector.base_url || ''}</td>
+                    <td>${connector.auth_type || 'none'}</td>
+                    <td>${connector.created_by || ''}</td>
+                    <td>
+                        <a href="#" onclick="editConnector(${connector.id || 0})" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
+                        <button onclick="deleteConnector(${connector.id || 0})" class="btn btn-sm btn-danger"><i class="fa fa-trash"></i> Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        } catch (err) {
+            showFlashMessage('Failed to load connectors: ' + err.message, 'error');
+        }
+    }
+
+    // Edit connector
+    async function editConnector(id) {
+        try {
+            const response = await fetch(`/connectors/${id}`);
+            if (!response.ok) throw new Error('Connector not found: ' + response.statusText);
+            const connector = await response.json();
+            document.getElementById('form-title').textContent = 'Edit Connector';
+            document.getElementById('name').value = connector.name || '';
+            document.getElementById('category').value = connector.category || '';
+            document.getElementById('base_url').value = connector.base_url || '';
+            document.getElementById('auth_type').value = connector.auth_type || 'none';
+            document.getElementById('auth_config').value = connector.auth_config ? JSON.stringify(connector.auth_config, null, 2) : '';
+            document.getElementById('connector_id').value = connector.id || '';
+            document.getElementById('created_by').value = connector.created_by || '';
+        } catch (err) {
+            showFlashMessage('Error: ' + err.message, 'error');
+        }
+    }
+
+    // Delete connector
+    async function deleteConnector(id) {
+        if (!confirm('Are you sure you want to delete this connector?')) return;
+        try {
+            const response = await fetch(`/connectors/${id}`, {
+                method: 'DELETE'
+            });
+            const result = await response.json();
+            if (!response.ok) {
+                showFlashMessage(result.error || 'Deletion failed: ' + response.statusText, 'error');
+                return;
+            }
+            showFlashMessage('Connector deleted successfully', 'success');
+            loadConnectors();
+        } catch (err) {
+            showFlashMessage('Error: ' + err.message, 'error');
+        }
+    }
+
+    // Reset form
+    function resetForm() {
+        document.getElementById('form-title').textContent = 'Add Connector';
+        document.getElementById('connector-form').reset();
+        document.getElementById('connector_id').value = '';
+        document.getElementById('created_by').value = '';
+    }
+
+    // Show flash message
+    function showFlashMessage(message, category) {
+        const flashDiv = document.getElementById('flash-messages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `alert alert-${category === 'error' ? 'danger' : 'success'} alert-dismissible fade show`;
+        messageDiv.innerHTML = `
+            ${message}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">×</span>
+            </button>
+        `;
+        flashDiv.appendChild(messageDiv);
+        setTimeout(() => messageDiv.remove(), 3000);
+    }
+</script>
+{% endblock %}

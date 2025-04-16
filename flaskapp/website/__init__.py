@@ -22,10 +22,15 @@ def create_app():
     from .views import views
     from .auth import auth
     from .dashboard import dboard
+    from .httpconnector import hconnector
+  
+
+    from .models import APIConfig, Authorization
 
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
     app.register_blueprint(dboard, url_prefix='/')
+    app.register_blueprint(hconnector, url_prefix='/')
 
     from .models import User, Note
     

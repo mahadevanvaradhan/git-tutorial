@@ -1,163 +1,90 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ action }} API Config</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        h1 {
-            text-align: center;
-        }
-        form {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            background-color: #f9f9f9;
-        }
-        label {
-            font-weight: bold;
-            display: block;
-            margin-top: 10px;
-        }
-        input, textarea, select {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        .section {
-            margin-bottom: 20px;
-        }
-        .auth-section {
-            display: none;
-        }
-        .back-link {
-            display: block;
-            text-align: center;
-            margin-top: 20px;
-        }
-        .error {
-            color: red;
-            margin-bottom: 15px;
-        }
-    </style>
-</head>
-<body>
-<h1>{{ action }} API Configuration</h1>
-{% if error %}
-<div class="error">{{ error }}</div>
-{% endif %}
-<form method="post">
-    <div class="section">
-        <label for="method">HTTP Method</label>
-        <select name="method" id="method" required>
-            <option value="" disabled {% if not config %}selected{% endif %}>Select Method</option>
-            <option value="GET" {% if config and config.method == 'GET' %}selected{% endif %}>GET</option>
-            <option value="POST" {% if config and config.method == 'POST' %}selected{% endif %}>POST</option>
-            <option value="PUT" {% if config and config.method == 'PUT' %}selected{% endif %}>PUT</option>
-            <option value="DELETE" {% if config and config.method == 'DELETE' %}selected{% endif %}>DELETE</option>
-        </select>
-    </div>
+{% extends "base.html" %}
 
-    <div class="section">
-        <label for="base_url">Base URL</label>
-        <input name="base_url" id="base_url" value="{{ config.base_url if config else '' }}" required>
-    </div>
+{% block title %}{{ action }} API Configuration{% endblock %}
 
-    <div class="section">
-        <label for="url_path">URL Path</label>
-        <input name="url_path" id="url_path" value="{{ config.url_path if config else '' }}">
-    </div>
+{% block content %}
+<div class="container">
+    <h1>{{ action }} API Configuration</h1>
+    
+    {% if error %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ error }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">×</span>
+            </button>
+        </div>
+    {% endif %}
 
-    <div class="section">
-        <label for="headers">Headers (JSON)</label>
-        <textarea name="headers" id="headers" rows="4">{{ config.headers if config else '{}' }}</textarea>
-    </div>
+    <form method="POST">
+        <div class="form-group">
+            <label for="name">Configuration Name</label>
+            <input type="text" id="name" name="name" class="form-control" value="{{ config.name if config else '' }}" required>
+        </div>
 
-    <div class="section">
-        <label for="parameters">Query Parameters (JSON)</label>
-        <textarea name="parameters" id="parameters" rows="4">{{ config.parameters if config else '{}' }}</textarea>
-    </div>
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" class="form-control" rows="3">{{ config.description if config else '' }}</textarea>
+        </div>
 
-    <div class="section">
-        <label for="body">Request Body (JSON)</label>
-        <textarea name="body" id="body" rows="6">{{ config.body if config else '{}' }}</textarea>
-    </div>
+        <div class="form-group">
+            <label for="authorization_name">Authorization</label>
+            <select id="authorization_name" name="authorization_name" class="form-control">
+                <option value="">None</option>
+                {% for connector in connectors %}
+                    <option value="{{ connector.name }}" {% if config and config.authorization_name == connector.name %}selected{% endif %}>
+                        {{ connector.name }} ({{ connector.auth_type }})
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
 
-    <div class="section">
-        <label for="retries">Retries</label>
-        <input name="retries" id="retries" type="number" value="{{ config.retries if config else 3 }}">
-    </div>
+        <div class="form-group">
+            <label for="method">HTTP Method</label>
+            <select id="method" name="method" class="form-control" required>
+                <option value="GET" {% if config and config.method == 'GET' %}selected{% endif %}>GET</option>
+                <option value="POST" {% if config and config.method == 'POST' %}selected{% endif %}>POST</option>
+                <option value="PUT" {% if config and config.method == 'PUT' %}selected{% endif %}>PUT</option>
+                <option value="DELETE" {% if config and config.method == 'DELETE' %}selected{% endif %}>DELETE</option>
+            </select>
+        </div>
 
-    <div class="section">
-        <label for="delay_response">Delay Response (ms)</label>
-        <input name="delay_response" id="delay_response" type="number" value="{{ config.delay_response if config else 0 }}">
-    </div>
+        <div class="form-group">
+            <label for="base_url">Base URL</label>
+            <input type="url" id="base_url" name="base_url" class="form-control" value="{{ config.base_url if config else '' }}" required>
+        </div>
 
-    <div class="section">
-        <label for="created_by">Created By (User ID)</label>
-        <input name="created_by" id="created_by" value="{{ config.created_by if config else '' }}">
-    </div>
+        <div class="form-group">
+            <label for="url_path">URL Path</label>
+            <input type="text" id="url_path" name="url_path" class="form-control" value="{{ config.url_path if config else '' }}">
+        </div>
 
-    <div class="section">
-        <label for="auth_type">Authorization Type</label>
-        <select name="auth_type" id="auth_type" onchange="toggleAuthFields()">
-            <option value="none" {% if config and config.auth_type == 'none' %}selected{% endif %}>None</option>
-            <option value="basic" {% if config and config.auth_type == 'basic' %}selected{% endif %}>Basic Auth</option>
-            <option value="bearer" {% if config and config.auth_type == 'bearer' %}selected{% endif %}>Bearer Token</option>
-            <option value="api_key" {% if config and config.auth_type == 'api_key' %}selected{% endif %}>API Key</option>
-        </select>
-    </div>
+        <div class="form-group">
+            <label for="headers">Headers (JSON)</label>
+            <textarea id="headers" name="headers" class="form-control" rows="4">{{ config.headers if config else '{}' }}</textarea>
+        </div>
 
-    <div id="basic-auth" class="section auth-section">
-        <label for="basic_username">Username</label>
-        <input name="basic_username" id="basic_username" value="{{ config.basic_username if config else '' }}">
-        <label for="basic_password">Password</label>
-        <input name="basic_password" id="basic_password" type="password" value="{{ config.basic_password if config else '' }}">
-    </div>
+        <div class="form-group">
+            <label for="parameters">Parameters (JSON)</label>
+            <textarea id="parameters" name="parameters" class="form-control" rows="4">{{ config.parameters if config else '{}' }}</textarea>
+        </div>
 
-    <div id="bearer-auth" class="section auth-section">
-        <label for="bearer_token">Bearer Token</label>
-        <input name="bearer_token" id="bearer_token" value="{{ config.bearer_token if config else '' }}">
-    </div>
+        <div class="form-group">
+            <label for="body">Body (JSON)</label>
+            <textarea id="body" name="body" class="form-control" rows="4">{{ config.body if config else '{}' }}</textarea>
+        </div>
 
-    <div id="api-key-auth" class="section auth-section">
-        <label for="api_key">API Key Header</label>
-        <input name="api_key" id="api_key" value="{{ config.api_key if config else '' }}">
-        <label for="api_key_value">API Key Value</label>
-        <input name="api_key_value" id="api_key_value" value="{{ config.api_key_value if config else '' }}">
-    </div>
+        <div class="form-group">
+            <label for="retries">Retries</label>
+            <input type="number" id="retries" name="retries" class="form-control" value="{{ config.retries if config else 3 }}" min="0">
+        </div>
 
-    <button type="submit">{{ action }}</button>
-</form>
-<a href="{{ url_for('dashboard.dashboard') }}" class="back-link">Back to Dashboard</a>
+        <div class="form-group">
+            <label for="delay_response">Delay Response (ms)</label>
+            <input type="number" id="delay_response" name="delay_response" class="form-control" value="{{ config.delay_response if config else 0 }}" min="0">
+        </div>
 
-<script>
-    function toggleAuthFields() {
-        var authType = document.getElementById('auth_type').value;
-        document.getElementById('basic-auth').style.display = authType === 'basic' ? 'block' : 'none';
-        document.getElementById('bearer-auth').style.display = authType === 'bearer' ? 'block' : 'none';
-        document.getElementById('api-key-auth').style.display = authType === 'api_key' ? 'block' : 'none';
-    }
-    // Initialize on page load
-    toggleAuthFields();
-</script>
-</body>
-</html>
+        <button type="submit" class="btn btn-primary">{{ action }}</button>
+        <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}
