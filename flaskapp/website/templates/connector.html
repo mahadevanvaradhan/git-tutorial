@@ -36,9 +36,51 @@
                 </select>
             </div>
 
+            <!-- Dynamic Auth Fields -->
+            <div id="auth_fields" style="display: none;">
+                <!-- Basic Auth Fields -->
+                <div id="basic_auth_fields" style="display: none;">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" class="form-control">
+                    </div>
+                </div>
+
+                <!-- Bearer Token Fields -->
+                <div id="bearer_auth_fields" style="display: none;">
+                    <div class="form-group">
+                        <label for="bearer_token">Bearer Token</label>
+                        <input type="text" id="bearer_token" name="bearer_token" class="form-control">
+                    </div>
+                </div>
+
+                <!-- API Key Fields -->
+                <div id="api_key_fields" style="display: none;">
+                    <div class="form-group">
+                        <label for="api_key_location">API Key Location</label>
+                        <select id="api_key_location" name="api_key_location" class="form-control">
+                            <option value="header">Header</option>
+                            <option value="query">Query</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="key_name">Key Name</label>
+                        <input type="text" id="key_name" name="key_name" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="key_value">Key Value</label>
+                        <input type="text" id="key_value" name="key_value" class="form-control">
+                    </div>
+                </div>
+            </div>
+
             <div class="form-group">
                 <label for="auth_config">Auth Config (JSON)</label>
-                <textarea id="auth_config" name="auth_config" class="form-control" rows="4" placeholder='e.g., {"username": "user", "password": "pass"} for Basic Auth'></textarea>
+                <textarea id="auth_config" name="auth_config" class="form-control" rows="4" readonly></textarea>
             </div>
 
             <input type="hidden" id="connector_id" name="connector_id">
@@ -68,7 +110,89 @@
 {{ super() }}
 <script type="text/javascript">
     // Load connectors on page load
-    document.addEventListener('DOMContentLoaded', loadConnectors);
+    document.addEventListener('DOMContentLoaded', () => {
+        loadConnectors();
+        updateAuthFields();
+    });
+
+    // Handle auth type change
+    document.getElementById('auth_type').addEventListener('change', updateAuthFields);
+
+    // Handle input changes for auth fields
+    document.getElementById('auth_fields').addEventListener('input', updateAuthConfig);
+    document.getElementById('api_key_location').addEventListener('change', updateAuthConfig);
+
+    function updateAuthFields() {
+        const authType = document.getElementById('auth_type').value;
+        const authFields = document.getElementById('auth_fields');
+        const basicFields = document.getElementById('basic_auth_fields');
+        const bearerFields = document.getElementById('bearer_auth_fields');
+        const apiKeyFields = document.getElementById('api_key_fields');
+
+        // Hide all fields by default
+        authFields.style.display = 'none';
+        basicFields.style.display = 'none';
+        bearerFields.style.display = 'none';
+        apiKeyFields.style.display = 'none';
+
+        // Show relevant fields based on auth type
+        if (authType !== 'none') {
+            authFields.style.display = 'block';
+            if (authType === 'basic') {
+                basicFields.style.display = 'block';
+            } else if (authType === 'bearer') {
+                bearerFields.style.display = 'block';
+            } else if (authType === 'api_key') {
+                apiKeyFields.style.display = 'block';
+            }
+        }
+
+        // Update auth config
+        updateAuthConfig();
+    }
+
+    function updateAuthConfig() {
+        const authType = document.getElementById('auth_type').value;
+        const authConfigTextarea = document.getElementById('auth_config');
+        let authConfig = {};
+
+        if (authType === 'basic') {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            if (username || password) {
+                authConfig = {
+                    auth_type: 'Basic',
+                    username: username || '',
+                    password: password || ''
+                };
+            }
+        } else if (authType === 'bearer') {
+            const token = document.getElementById('bearer_token').value;
+            if (token) {
+                authConfig = {
+                    auth_type: 'Bearer',
+                    token: token
+                };
+            }
+        } else if (authType === 'api_key') {
+            const location = document.getElementById('api_key_location').value;
+            const keyName = document.getElementById('key_name').value;
+            const keyValue = document.getElementById('key_value').value;
+            if (keyName || keyValue) {
+                authConfig = {
+                    auth_type: 'APIKEY',
+                    in: location === 'query' ? 'query' : undefined,
+                    key_name: keyName || '',
+                    key_value: keyValue || ''
+                };
+                if (location !== 'query') {
+                    delete authConfig.in;
+                }
+            }
+        }
+
+        authConfigTextarea.value = Object.keys(authConfig).length > 0 ? JSON.stringify(authConfig, null, 2) : '';
+    }
 
     // Form submission
     document.getElementById('connector-form').addEventListener('submit', async (e) => {
@@ -167,9 +291,26 @@
             document.getElementById('category').value = connector.category || '';
             document.getElementById('base_url').value = connector.base_url || '';
             document.getElementById('auth_type').value = connector.auth_type || 'none';
+            
+            // Populate auth fields based on auth_config
+            if (connector.auth_config) {
+                if (connector.auth_type === 'basic') {
+                    document.getElementById('username').value = connector.auth_config.username || '';
+                    document.getElementById('password').value = connector.auth_config.password || '';
+                } else if (connector.auth_type === 'bearer') {
+                    document.getElementById('bearer_token').value = connector.auth_config.token || '';
+                } else if (connector.auth_type === 'api_key') {
+                    document.getElementById('api_key_location').value = connector.auth_config.in === 'query' ? 'query' : 'header';
+                    document.getElementById('key_name').value = connector.auth_config.key_name || '';
+                    document.getElementById('key_value').value = connector.auth_config.key_value || '';
+                }
+            }
+            
             document.getElementById('auth_config').value = connector.auth_config ? JSON.stringify(connector.auth_config, null, 2) : '';
             document.getElementById('connector_id').value = connector.id || '';
             document.getElementById('created_by').value = connector.created_by || '';
+            
+            updateAuthFields();
         } catch (err) {
             showFlashMessage('Error: ' + err.message, 'error');
         }
@@ -200,6 +341,7 @@
         document.getElementById('connector-form').reset();
         document.getElementById('connector_id').value = '';
         document.getElementById('created_by').value = '';
+        updateAuthFields();
     }
 
     // Show flash message

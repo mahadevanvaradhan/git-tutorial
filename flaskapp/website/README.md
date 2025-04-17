@@ -31,3 +31,13 @@ https://openlibrary.org/search.json?q=the+lord+of+the+rings&page=2
 https://openlibrary.org/search/authors.json?q=twain
 https://openlibrary.org/search.json?q=crime+and+punishment&fields=key,title,author_name,editions
 https://free-apis.github.io/#/browse
+
+
+url = 'https://api.waifu.im/search'
+params = {
+    'included_tags': ['maid'],
+    'limit': '1'
+}
+
+
+https://api-thirukkural.vercel.app/api?num={kural_num}
