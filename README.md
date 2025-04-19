@@ -1,5 +1,7 @@
 # git-tutorial
 Refer: https://git-scm.com/docs
+Refer: https://raybo.org/slides_practicalactions/#/
+Refer: https://github.com/LinkedInLearning/github-practical-actions-4412872
 
 ## Install Git cli
 1. Download git cli from google search
@@ -30,3 +32,4 @@ git restore
 git restore --stage "one.txt"
 
 git deff --staged
+
