@@ -13,3 +13,22 @@ git config --global user.name "username"
 git config --global user.email
 git config --global user.email "email.com"
 
+## Know the difference Clone vs Fork
+
+'git clone' and 'fork' are often confused, but they serve different purposes in collaborative development.
+
+Let me break this down:
+### git clone
+```bash
+git clone https://github.com/mahadevanvaradhan/git-tutorial.git
+cd git-tutorial
+```
+
+The above command create a local copy in your machine.
+
+Clone is used when you want to create your own repository or when you want to contribute to existing repository as a team member.
+
+### Fork
+'Fork' is the button (feature) available in github, gitlab, bitbuket. When you click on the buttun it creates your own copy of someone's repository in your account.
+
+For is used when you want to customize someone projects to meet your requirements.
