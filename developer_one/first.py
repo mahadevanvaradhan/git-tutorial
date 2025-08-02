@@ -9,6 +9,11 @@ def fibonacci_series(n):
         a, b = b, a + b
     return series
 
+def area_of_circle(radius):
+    """Return the area of a circle given its radius."""
+    return 3.141592653589793 * radius * radius
+
+
 # Example usage:
 if __name__ == "__main__":
     terms = 10

@@ -107,7 +107,7 @@ git checkout develop
 
 Now, you will notice the directory, files and changes made in developer_one feature branch is not available in your IDE.
 
-Run below command to merge code from feature branch to develop
+Run below command to merge code from feature branch to origin develop
 ```bash
 git merge develop
 ```
