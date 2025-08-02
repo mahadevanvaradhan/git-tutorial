@@ -45,6 +45,7 @@ git branch
 
 ### Create feature/developer_one branch
 
+
 #### **Task 1: As a contributor 1, perform following steps:**
 **Contributor: developer_one**
 
@@ -98,3 +99,16 @@ The git push command uploads your local commits from your local repository to a 
 Good, now we successfully added developer_one codes to feature/developer_one branch in origin.
 
 **Task 2: Merge feature/developer_one to develop branch**
+=======
+Run below command
+```bash
+git checkout develop
+```
+
+Now, you will notice the directory, files and changes made in developer_one feature branch is not available in your IDE.
+
+Run below command to merge code from feature branch to develop
+```bash
+git merge develop
+```
+
