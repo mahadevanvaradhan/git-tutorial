@@ -43,4 +43,72 @@ git checkout -b develop
 git branch
 ```
 
+### Create feature/developer_one branch
+
+
+#### **Task 1: As a contributor 1, perform following steps:**
+**Contributor: developer_one**
+
+Assume a developer 'one' created the feature branch to work on a feature assigned to him.
+Good practice to name a feature branch to prefix it with ticket number. If a story number is ST003,
+then you can add a feature branch named like 'feature/st003_login_otp'.
+
+In this we named as developer_one to track changes done by multiple developer in a repo. Just for learning :)
+
+```bash
+git checkout -b feature/developer_one
+git branch
+```
+
+Add a folder, and few files in the repo.
+
+```bash
+mkdir developer_one
+cd developer_one
+touch first.py
+```
+Add few lines of code to first.py. Run below command to check status and commit the changes from local to origin.
+
+```bash
+git status
+```
+
+```bash
+git add developer_one/
+```
+This will add developer_one and all files fromworking directory to the staging area. It prepare files for commit.
+
+```bash
+git commit -m "Added developer_one commit"
+```
+The git commit command takes everything from the staging area and creates a permanent snapshot (commit) in your Git repository's history. It's like taking a photo of your project at that exact moment.
+
+For first time push into new beranch use below command:
+```bash
+git push --set-upstream origin feature/developer_one
+```
+
+For regular update, after first push use below command:
+
+```bash
+git push --set-upstream origin feature/developer_one
+```
+
+The git push command uploads your local commits from your local repository to a remote repository (like GitHub, GitLab, etc.). It's how you share your work with others and back up your commits to the cloud.
+
+Good, now we successfully added developer_one codes to feature/developer_one branch in origin.
+
+**Task 2: Merge feature/developer_one to develop branch**
+=======
+Run below command
+```bash
+git checkout develop
+```
+
+Now, you will notice the directory, files and changes made in developer_one feature branch is not available in your IDE.
+
+Run below command to merge code from feature branch to develop
+```bash
+git merge develop
+```
 
