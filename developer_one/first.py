@@ -11,6 +11,10 @@ def fibonacci_series(n):
 
 def area_of_circle(radius):
     """Return the area of a circle given its radius."""
+    if radius < 0:
+        raise ValueError("Radius cannot be negative")
+    if not isinstance(radius, (int, float)):
+        raise TypeError("Radius must be a number")
     return 3.141592653589793 * radius * radius
 
 
