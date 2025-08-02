@@ -18,6 +18,11 @@ def area_of_circle(radius):
     return 3.141592653589793 * radius * radius
 
 
+def square_number(num):
+    """Return the square of a number."""
+    return num * num
+
+
 # Example usage:
 if __name__ == "__main__":
     terms = 10
