@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head><title>API Dashboard</title></head>
+<body>
+<h1>API Configurations</h1>
+<form method="post" action="{{ url_for('dashboard.generate_tool') }}">
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Select</th><th>Method</th><th>Base URL</th><th>Path</th><th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for config in configs %}
+            <tr>
+                <td><input type="checkbox" name="selected_ids" value="{{ config.id }}"></td>
+                <td>{{ config.method }}</td>
+                <td>{{ config.base_url }}</td>
+                <td>{{ config.url_path }}</td>
+                <td>
+                    <a href="{{ url_for('dashboard.edit_config', id=config.id) }}">Edit</a>
+                    <form method="post" action="{{ url_for('dashboard.delete_config', id=config.id) }}" style="display:inline;">
+                        <button type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <button type="submit">Generate tool.py</button>
+</form>
+<a href="{{ url_for('dashboard.add_config') }}">Add New Config</a>
+</body>
+</html>
