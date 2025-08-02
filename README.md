@@ -45,6 +45,7 @@ git branch
 
 ### Create feature/developer_one branch
 
+#### **Task 1: As a contributor 1, perform following steps:**
 **Contributor: developer_one**
 
 Assume a developer 'one' created the feature branch to work on a feature assigned to him.
@@ -93,3 +94,7 @@ git push --set-upstream origin feature/developer_one
 ```
 
 The git push command uploads your local commits from your local repository to a remote repository (like GitHub, GitLab, etc.). It's how you share your work with others and back up your commits to the cloud.
+
+Good, now we successfully added developer_one codes to feature/developer_one branch in origin.
+
+**Task 2: Merge feature/developer_one to develop branch**
