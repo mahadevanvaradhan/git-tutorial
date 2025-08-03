@@ -9,6 +9,20 @@ def fibonacci_series(n):
         a, b = b, a + b
     return series
 
+def area_of_circle(radius):
+    """Return the area of a circle given its radius."""
+    if radius < 0:
+        raise ValueError("Radius cannot be negative")
+    if not isinstance(radius, (int, float)):
+        raise TypeError("Radius must be a number")
+    return 3.141592653589793 * radius * radius
+
+
+def square_number(num):
+    """Return the square of a number."""
+    return num * num
+
+
 # Example usage:
 if __name__ == "__main__":
     terms = 10
