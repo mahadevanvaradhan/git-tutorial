@@ -125,12 +125,12 @@ git commit -m "added second.py"
 git push
 ```
 
-Now checkout develop branch, and create a new feature branch developer_two
+Now checkout develop branch, and create a new feature branch developer_test
 
 ```bash
 git status
 git checkout develop
-git checkout -b feature/developer_two
+git checkout -b feature/developer_test
 ```
 make necessary changes
 
@@ -140,4 +140,11 @@ git checkout develop
 git pull origin develop
 git rebase develop
 git stash pop
+```
+
+**Task 4: As a contributor 'two' clone the branch and create feature branch developer_two**
+
+```bash
+git checkout -b feature/developer_two
+git pull origin develop
 ```
