@@ -132,3 +132,12 @@ git status
 git checkout develop
 git checkout -b feature/developer_two
 ```
+make necessary changes
+
+```bash
+git stash push -m "aded new file"
+git checkout develop
+git pull origin develop
+git rebase develop
+git stash pop
+```
