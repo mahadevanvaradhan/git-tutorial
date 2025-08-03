@@ -112,3 +112,23 @@ Run below command to merge code from feature branch to origin develop
 git merge develop
 ```
 
+**Task 3: Add new file developer_one feature branch**
+
+
+Add new file second.py
+Enter few lines of codes in second.py
+
+```bash
+git status
+git add developer_one/second.py
+git commit -m "added second.py"
+git push
+```
+
+Now checkout develop branch, and create a new feature branch developer_two
+
+```bash
+git status
+git checkout develop
+git checkout -b feature/developer_two
+```
